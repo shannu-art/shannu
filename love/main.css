@@ -1,0 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Pacifico&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    touch-action: none;
+}
+
+body {
+    overflow: hidden;
+    display: flex;
+    font-family: "Pacifico", sans-serif;
+    background: #1a001f; /* deep purple background */
+    perspective: 1000px;
+    transform-style: preserve-3d;
+}
+/* Responsive improvements for mobile */
+@media (max-width: 600px) {
+    body {
+    font-size: 3vw;
+    perspective: none; /* remove perspective on mobile so images feel closer */
+    transform-style: flat;
+    }
+    /* ensure parent containers don't apply 3D transforms on mobile */
+    #drag-container, #spin-container {
+        transform: none !important;
+        perspective: none !important;
+    }
+    #drag-container, #spin-container {
+        width: 90vw !important;
+        height: 60vw !important;
+        min-width: 0 !important;
+        min-height: 0 !important;
+    }
+    /* hide all main slideshow images by default on mobile; only .active is shown */
+    #drag-container img.main-slide {
+        /* use visibility+opacity so animations can run smoothly */
+            visibility: hidden;
+            opacity: 0;
+            max-width: 40vw;
+            max-height: 28vw;
+            left: 0;
+            top: 0;
+            position: absolute;
+            transition: opacity 0.85s ease; /* longer opacity transition for smoother fade */
+            animation: none !important;
+            background-color: #0f0014; /* neutral background to mask transparent pixels */
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+    }
+    #ground {
+        width: 60vw !important;
+        height: 60vw !important;
+    }
+    #drag-container p {
+        font-size: 7vw;
+    }
+
+    /* Show only the active main slideshow image (override hide) */
+    #drag-container img.main-slide.active {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition-delay: 0s;
+    /* incoming image: slide + zoom in */
+    animation: slideInZoom 2.2s cubic-bezier(0.77,0,0.175,1) !important;
+        z-index: 900 !important; /* incoming below outgoing */
+        position: fixed !important;
+        left: 50% !important;
+        top: 50% !important;
+    transform: translate(-50%, -50%) !important; /* center the image */
+    transform-origin: center center;
+        display: block;
+        width: auto;
+        max-width: 94vw;
+        height: auto;
+        max-height: 86vh;
+        object-fit: contain;
+        object-position: center center;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+        border-radius: 6px;
+        background: transparent;
+    }
+    #drag-container img.main-slide.slideout {
+    /* outgoing should stay on top while animating to avoid revealing background */
+    /* outgoing image: slide + zoom out */
+    animation: slideOutZoom 2.2s cubic-bezier(0.77,0,0.175,1) forwards !important;
+    opacity: 0 !important;
+        z-index: 1000 !important;
+    }
+
+    /* neutral mask behind images to avoid blink when images temporarily show transparent pixels */
+    #mobile-mask {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        background: radial-gradient(circle at center, rgba(0,0,0,0.06), rgba(0,0,0,0.18));
+        pointer-events: none;
+        z-index: 80; /* keep behind images but above other background layers */
+    }
+    
+    /* ensure caption/text doesn't use 3D transform on mobile */
+    #drag-container p {
+        transform: none !important;
+        top: auto !important;
+        bottom: 6vh !important;
+    }
+}
+
+@media (max-width: 600px) {
+    #spin-container {
+        animation: none !important;
+    }
+}
+
+@keyframes slideInZoom {
+    from { transform: translate(-150%, -50%) scale(0.92); opacity: 0.95; }
+    60%  { transform: translate(-60%, -50%) scale(1.06); opacity: 1; }
+    to   { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes slideOutZoom {
+    from { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50%  { transform: translate(10%, -50%) scale(0.96); opacity: 0.95; }
+    to   { transform: translate(150%, -50%) scale(0.9); opacity: 0; }
+}
+
+@keyframes fadeInImage {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeOutImage {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Reduce animation speed for mobile */
+@media (max-width: 600px) {
+    #spin-container {
+        animation-duration: 30s !important;
+    }
+}
+
+#drag-container, #spin-container {
+    position: relative;
+    display: flex;
+    margin: auto;
+    transform-style: preserve-3d;
+    transform: none;
+    z-index: 100;
+}
+
+#drag-container img {
+    transform-style: preserve-3d;
+    position: absolute;
+    left: 0;
+    top: 0;
+    max-width: 120%;
+    max-height: 120%;
+    box-shadow: 0 0 10px #ff66cc;
+    -webkit-box-reflect: below 10px linear-gradient(transparent, transparent, #0005);
+}
+
+    #drag-container img.main-slide:hover {
+    box-shadow: 0 0 25px #ff99ff;
+    -webkit-box-reflect: below 10px linear-gradient(transparent, transparent, #ff66cc66);
+}
+
+#drag-container p {
+    position: absolute;
+    left: 50%;
+    bottom: 6vh;
+    transform: translateX(-50%);
+    font-size: 4vw;
+    font-weight: 700;
+    background: linear-gradient(45deg, #ff4da6, #b366ff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 12px rgba(255, 105, 180, 0.6),
+                 0 0 24px rgba(179, 102, 255, 0.45);
+    animation: fadeInOut 3s ease-in-out infinite;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes fadeInOut {
+    0%   { opacity: 0; transform: translateX(-50%) translateY(10px); }
+    10%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    70%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+    100% { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+}
+
+#ground {
+    width: 900px;
+    height: 900px;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translate(-50%,-50%) rotateX(90deg);
+    /* background: radial-gradient(circle, rgba(255,182,193,0.3), transparent); */
+}
+
+#music-container {
+    display: none;
+}
+
+#canvas {
+    background-color: transparent;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+
+#canva {
+    position: absolute;
+    top: 0;
+    right: 0;
+    overflow: hidden;
+}
+
+@keyframes spin {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
+}
+
+@keyframes spinRevert {
+    from { transform: rotateY(360deg); }
+    to { transform: rotateY(0deg); }
+}
+
+/* Remove caption text entirely */
+#drag-container p { display: none !important; }

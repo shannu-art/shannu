@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uyên Nhi</title>
+    <link rel="shortcut icon" href="./icon.png" type="image/x-icon">
+    <link rel="stylesheet" href="main.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="drag-container">
+        <div id="spin-container">
+            <img class="main-slide" src="./images/r1.jpg" alt="">
+            <img class="main-slide" src="./images/r2.jpg" alt="">
+            <img class="main-slide" src="./images/r3.jpg" alt="">
+            <img class="main-slide" src="./images/r4.jpg" alt="">
+            <img class="main-slide" src="./images/r10.jpg" alt="">
+            <img class="main-slide" src="./images/r6.jpg" alt="">
+            <img class="main-slide" src="./images/r7.jpg" alt="">
+            <img class="main-slide" src="./images/r8.jpg" alt="">
+            <img class="main-slide" src="./images/r9.jpg" alt="">
+            <img class="main-slide" src="./images/r11.jpg" alt="">
+            <img class="main-slide" src="./images/r5.jpg" alt="">
+            <p>Happy Birthday Kumudvini</p>
+        </div>
+        <div id="ground"></div>
+    </div>
+    
+    <div id="music-container"></div>
+    <div id="canva">
+        <canvas id="canvas"></canvas>
+    </div>
+
+    <!-- Audio -->
+    <audio id="myAudio" autoplay playsinline loop>
+        <source src="music/setlove.mp3" type="audio/mpeg">
+        <!-- fallback OGG left as optional if available -->
+        <source src="music/setlove.mp3" type="audio/ogg">
+    </audio>
+
+    <script src="main.js"></script>
+
+    <script>
+        window.onload = function() {
+            var audio = document.getElementById("myAudio");
+            if (audio) {
+                audio.muted = false;
+                audio.loop = true; // ensure looping
+                audio.play().catch(function(e) {
+                    console.log('Audio playback failed:', e);
+                });
+            }
+
+            // Fireworks & Hearts
+            const canvas = document.getElementById("canvas");
+            const ctx = canvas.getContext("2d");
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            function random(min, max) {
+                return Math.random() * (max - min) + min;
+            }
+
+            function Firework(x, y) {
+                this.x = x;
+                this.y = y;
+                this.radius = random(2, 4);
+                const colors = ["#ff4da6", "#b366ff", "#ffd700"];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.vx = random(-3, 3);
+                this.vy = random(-3, 3);
+                this.life = 100;
+            }
+
+            Firework.prototype.draw = function () {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            };
+
+            Firework.prototype.update = function () {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.life--;
+            };
+
+            function Heart(x, y) {
+                this.x = x;
+                this.y = y;
+                this.size = random(20, 40);
+                this.color = "#ff80d5"; // soft pink
+                this.vy = random(-2, -1);
+                this.opacity = 1;
+            }
+            // Optional image-based heart: if you drop 'heart.png' into love/images/ it will be used.
+            var heartImg = new Image();
+            var heartImgLoaded = false;
+            heartImg.src = 'images/heart.png';
+            heartImg.onload = function() { heartImgLoaded = true; console.log('[heart] image loaded'); };
+
+            Heart.prototype.draw = function () {
+                ctx.save();
+                // draw either an image heart (if available) or fallback vector heart
+                if (heartImgLoaded) {
+                    var s = this.size;
+                    ctx.globalAlpha = this.opacity;
+                    ctx.drawImage(heartImg, this.x - s/2, this.y - s/2, s, s);
+                    ctx.globalAlpha = 1;
+                } else {
+                    ctx.beginPath();
+                    ctx.moveTo(this.x, this.y);
+                    ctx.bezierCurveTo(this.x - this.size / 2, this.y - this.size / 2, this.x - this.size, this.y + this.size / 3, this.x, this.y + this.size);
+                    ctx.bezierCurveTo(this.x + this.size, this.y + this.size / 3, this.x + this.size / 2, this.y - this.size / 2, this.x, this.y);
+                    ctx.fillStyle = this.color;
+                    ctx.globalAlpha = this.opacity;
+                    ctx.fill();
+                    ctx.globalAlpha = 1;
+                }
+
+                // small glitter particles around the heart for shimmer effect
+                for (var i = 0; i < 3; i++) {
+                    var gx = this.x + random(-this.size * 0.6, this.size * 0.6);
+                    var gy = this.y + random(-this.size * 0.6, this.size * 0.6);
+                    var gr = random(0.6, 1.8);
+                    ctx.beginPath();
+                    ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,' + (0.6 * this.opacity * Math.random()) + ')';
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            };
+
+            Heart.prototype.update = function () {
+                this.y += this.vy;
+                this.opacity -= 0.01;
+            };
+
+            // Letters that rise like hearts (L O V E)
+            function Letter(char, x, y) {
+                this.char = char;
+                this.x = x;
+                this.y = y;
+                this.size = random(64, 110);
+                this.vy = random(-2.6, -1.4);
+                this.opacity = 1;
+                this.drift = random(-0.6, 0.6);
+            }
+
+            Letter.prototype.draw = function() {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, this.opacity);
+                // gradient fill for each letter
+                // solid baby-pink fill
+                ctx.fillStyle = '#ffc0cb';
+                ctx.font = Math.floor(this.size) + 'px "Dancing Script", serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(this.char, this.x, this.y);
+
+                // glitter around the letter
+                var glitterCount = 6;
+                for (var i = 0; i < glitterCount; i++) {
+                    var gx = this.x + random(-this.size * 0.6, this.size * 0.6);
+                    var gy = this.y + random(-this.size * 0.6, this.size * 0.6);
+                    var gr = random(0.8, 2.2);
+                    ctx.beginPath();
+                    ctx.arc(gx, gy, gr, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255,255,255,' + (0.7 * this.opacity * Math.random()) + ')';
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            };
+
+            Letter.prototype.update = function() {
+                this.y += this.vy;
+                this.x += this.drift;
+                this.opacity -= 0.007;
+            };
+
+            var letters = [];
+
+            function spawnLOVESequence() {
+                var chars = ['L','O','V','E'];
+                var center = canvas.width / 2;
+                var spacing = Math.min(110, canvas.width / 6);
+                for (let i = 0; i < chars.length; i++) {
+                    (function(i){
+                        setTimeout(function(){
+                            var lx = center + (i - (chars.length-1)/2) * spacing;
+                            var ly = canvas.height + 60; // start slightly below
+                            letters.push(new Letter(chars[i], lx, ly));
+                        }, i * 900); // slower stagger (900ms between letters)
+                    })(i);
+                }
+            }
+
+            let fireworks = [];
+            let hearts = [];
+
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (Math.random() < 0.1) {
+                    fireworks.push(new Firework(random(0, canvas.width), random(0, canvas.height)));
+                }
+                if (Math.random() < 0.05) {
+                    hearts.push(new Heart(random(0, canvas.width), canvas.height));
+                }
+
+                fireworks.forEach((firework, index) => {
+                    firework.draw();
+                    firework.update();
+                    if (firework.life <= 0) {
+                        fireworks.splice(index, 1);
+                    }
+                });
+
+                hearts.forEach((heart, index) => {
+                    heart.draw();
+                    heart.update();
+                    if (heart.opacity <= 0) {
+                        hearts.splice(index, 1);
+                    }
+                });
+
+                // draw and update letters
+                letters.forEach((letter, idx) => {
+                    letter.draw();
+                    letter.update();
+                    if (letter.opacity <= 0) letters.splice(idx, 1);
+                });
+
+                requestAnimationFrame(animate);
+            }
+            animate();
+            // spawn LOVE letters and repeat continuously
+            spawnLOVESequence();
+            setInterval(spawnLOVESequence, 9000); // repeat every 9 seconds
+        };
+    </script>
+</body>
+</html>
