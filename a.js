@@ -1,3 +1,6 @@
+(function(){
+  // Guard: do nothing when the expected DOM is not present
+  if (!document.getElementById('Content')) return;
 
     const body = document.querySelector("body");
     const swalst = Swal.mixin({
@@ -33,14 +36,14 @@
 
     // DIRECT NAME (changed here)
     function inipesan() {
-      window.nama = "kumudvini"; // put any name you want here
+      window.nama = "kumudvini"; 
       vketikhalo = "Happy Birthday, " + nama + "!";
       mulainama();
     }
 
     var tanya = "How about we celebrate your birthday in style?";
     var opstanya = "Your choice is:";
-    var tompositif = "Absolutely, let’s celebrate! 🎉";
+    var tompositif = "Absolutely, lets celebrate! \ud83c\udf89";
     var tomnegatif = "Maybe another time";
 
     async function pertanyaan() {
@@ -257,7 +260,7 @@ function aktipesan5(){
     waitUntilVisible: true,
     lifelike: true,
     afterComplete: function(){
-      pesan5.innerHTML = vketik5 + " 😊";
+      pesan5.innerHTML = vketik5 + " \ud83d\ude0a";
       setTimeout(aktipesan6, 700);
     },
   }).go();
@@ -279,6 +282,50 @@ function aktipesan6(){
     lifelike: true,
     afterComplete: function(){
       pesan6.innerHTML = vketik6;
+      // proceed to the next message (pesan7)
+      setTimeout(aktipesan7, 700);
+    },
+  }).go();
+}
+
+vketik7 = pesan7.innerHTML;
+pesan7.innerHTML = "";
+function aktipesan7(){
+  wallpaper.style = "transform: scale(1);";
+  fthilang();
+  ftganti = 5;
+  setTimeout(ftmuncul, 300);
+  new TypeIt("#pesan7", {
+    strings: ["" + vketik7],
+    startDelay: 1,
+    speed: 52,
+    cursor: true,
+    waitUntilVisible: false,
+    lifelike: true,
+    afterComplete: function(){
+      pesan7.innerHTML = vketik7;
+      // proceed to pesan8, then show tombol
+      setTimeout(aktipesan8, 700);
+    },
+  }).go();
+}
+
+vketik8 = pesan8.innerHTML;
+pesan8.innerHTML = "";
+function aktipesan8(){
+  wallpaper.style = "transform: scale(1);";
+  fthilang();
+  ftganti = 8;
+  setTimeout(ftmuncul, 300);
+  new TypeIt("#pesan8", {
+    strings: ["" + vketik8],
+    startDelay: 1,
+    speed: 52,
+    cursor: true,
+    waitUntilVisible: false,
+    lifelike: true,
+    afterComplete: function(){
+      pesan8.innerHTML = vketik8;
       setTimeout(tombol, 400);
     },
   }).go();
@@ -300,3 +347,5 @@ function checkslov() {
     setTimeout(aktipesan2, 400);
   }
 }
+
+})();
