@@ -260,7 +260,7 @@ function aktipesan5(){
     waitUntilVisible: true,
     lifelike: true,
     afterComplete: function(){
-      pesan5.innerHTML = vketik5 + " \ud83d\ude0a";
+      pesan5.innerHTML = vketik5;
       setTimeout(aktipesan6, 700);
     },
   }).go();
